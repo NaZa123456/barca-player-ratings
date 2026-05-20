@@ -275,7 +275,7 @@ function MatchEditor({ match, store }: { match: Match; store: ReturnType<typeof 
                 <th className="text-left px-4 py-3 w-[40%]">Jugador</th>
                 <th className="text-center px-2 py-3">Min</th>
                 <th className="text-center px-2 py-3">Nota</th>
-                <th className="text-left px-4 py-3">Comentario</th>
+                <th className="text-left px-4 py-3">Gol/Asistencia</th>
               </tr>
             </thead>
             <tbody>
@@ -353,7 +353,7 @@ function PositionRows({ pos, players, match, store }: { pos: Position; players: 
             </td>
             <td className="px-4 py-2">
               <Input
-                placeholder="Notas, goles, asistencias..."
+                placeholder="Goles, asistencias, detalles..."
                 value={entry.note ?? ""}
                 onChange={(e) => store.setRating(match.id, p.id, { note: e.target.value })}
                 className="h-9"
@@ -480,6 +480,7 @@ function SeasonView({ store }: { store: ReturnType<typeof useBarcaStore> }) {
                   <th className="text-center px-3 py-3">Peor</th>
                   <th className="text-center px-3 py-3">Mejor</th>
                   <th className="text-center px-3 py-3">Media</th>
+                  <th className="text-center px-3 py-3"></th>
                 </tr>
               </thead>
               <tbody>
@@ -503,6 +504,16 @@ function SeasonView({ store }: { store: ReturnType<typeof useBarcaStore> }) {
                     <td className="text-center px-3 py-2 tabular-nums text-muted-foreground">{r.worst !== null ? r.worst.toFixed(1) : "—"}</td>
                     <td className="text-center px-3 py-2 tabular-nums text-muted-foreground">{r.best !== null ? r.best.toFixed(1) : "—"}</td>
                     <td className="text-center px-3 py-2"><RatingBadge rating={r.avg ?? undefined} /></td>
+                    <td className="text-center px-3 py-2">
+                      <button
+                        onClick={() => store.removePlayer(r.player.id)}
+                        className="text-muted-foreground hover:text-destructive transition-colors"
+                        aria-label={`Eliminar ${r.player.name}`}
+                        title="Quitar jugador"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </td>
                   </tr>
                 ))}
               </tbody>
