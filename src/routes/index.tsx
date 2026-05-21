@@ -74,6 +74,7 @@ function Home() {
 }
 
 function Header({ onReset }: { onReset: () => void }) {
+  const { theme, toggle } = useTheme();
   return (
     <header className="bg-gradient-hero text-primary-foreground shadow-card">
       <div className="container mx-auto max-w-7xl px-4 py-8 flex items-center justify-between gap-4">
@@ -88,24 +89,35 @@ function Header({ onReset }: { onReset: () => void }) {
             </p>
           </div>
         </div>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button variant="outline" size="sm" className="bg-white/10 border-white/30 text-white hover:bg-white/20">
-              <RotateCcw className="mr-2 h-4 w-4" /> Reset
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>¿Borrar todos los datos?</DialogTitle>
-            </DialogHeader>
-            <p className="text-sm text-muted-foreground">
-              Esto eliminará todas las notas, minutos, partidos personalizados y jugadores añadidos.
-            </p>
-            <DialogFooter>
-              <Button variant="destructive" onClick={onReset}>Sí, borrar todo</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={toggle}
+            className="bg-white/10 border-white/30 text-white hover:bg-white/20"
+            aria-label="Cambiar tema"
+          >
+            {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </Button>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm" className="bg-white/10 border-white/30 text-white hover:bg-white/20">
+                <RotateCcw className="mr-2 h-4 w-4" /> Reset
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>¿Borrar todos los datos?</DialogTitle>
+              </DialogHeader>
+              <p className="text-sm text-muted-foreground">
+                Esto eliminará todas las notas, minutos, partidos personalizados y jugadores añadidos.
+              </p>
+              <DialogFooter>
+                <Button variant="destructive" onClick={onReset}>Sí, borrar todo</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
     </header>
   );
