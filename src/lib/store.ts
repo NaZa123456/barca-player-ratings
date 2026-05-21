@@ -51,7 +51,7 @@ export function useBarcaStore() {
     localStorage.setItem(KEY, JSON.stringify(state));
   }, [state, hydrated]);
 
-  const setRating = (matchId: string, playerId: string, patch: Partial<{ minutes: number; rating: number; note: string }>) => {
+  const setRating = (matchId: string, playerId: string, patch: Partial<{ minutes: number; rating: number; note: string; starred: boolean }>) => {
     setState((s) => {
       const key = `${matchId}::${playerId}`;
       const current = s.ratings[key] ?? {};
@@ -61,6 +61,7 @@ export function useBarcaStore() {
       if (next.minutes !== undefined && !Number.isNaN(next.minutes)) cleaned.minutes = next.minutes;
       if (next.rating !== undefined && !Number.isNaN(next.rating)) cleaned.rating = next.rating;
       if (next.note) cleaned.note = next.note;
+      if (next.starred) cleaned.starred = true;
       const ratings = { ...s.ratings };
       if (Object.keys(cleaned).length === 0) delete ratings[key];
       else ratings[key] = cleaned;
