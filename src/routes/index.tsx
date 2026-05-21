@@ -404,7 +404,7 @@ function SeasonView({ store }: { store: ReturnType<typeof useBarcaStore> }) {
 
   const rows = useMemo(() => {
     return store.state.players.map((p) => {
-      let total = 0, count = 0, minutes = 0;
+      let total = 0, count = 0, minutes = 0, stars = 0;
       let best = -Infinity, worst = Infinity;
       const perComp: Record<CompetitionId, { sum: number; n: number }> = {
         laliga: { sum: 0, n: 0 }, copa: { sum: 0, n: 0 }, supercopa: { sum: 0, n: 0 }, champions: { sum: 0, n: 0 },
@@ -414,6 +414,7 @@ function SeasonView({ store }: { store: ReturnType<typeof useBarcaStore> }) {
         const e = store.state.ratings[`${m.id}::${p.id}`];
         if (!e) return;
         if (e.minutes) minutes += e.minutes;
+        if (e.starred) stars += 1;
         if (e.rating !== undefined && !Number.isNaN(e.rating)) {
           total += e.rating; count += 1;
           if (e.rating > best) best = e.rating;
@@ -427,6 +428,7 @@ function SeasonView({ store }: { store: ReturnType<typeof useBarcaStore> }) {
         avg: count ? total / count : null,
         matches: count,
         minutes,
+        stars,
         best: count ? best : null,
         worst: count ? worst : null,
         perComp,
