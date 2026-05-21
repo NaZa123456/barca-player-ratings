@@ -511,6 +511,7 @@ function SeasonView({ store }: { store: ReturnType<typeof useBarcaStore> }) {
                   <th className="text-center px-3 py-3">Peor</th>
                   <th className="text-center px-3 py-3">Mejor</th>
                   <th className="text-center px-3 py-3">Media</th>
+                  <th className="text-center px-3 py-3" title="Partidos con honores">★</th>
                   <th className="text-center px-3 py-3"></th>
                 </tr>
               </thead>
