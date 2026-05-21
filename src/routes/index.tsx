@@ -9,8 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Trophy, Plus, Trash2, RotateCcw, ShieldHalf, Star } from "lucide-react";
+import { Trophy, Plus, Trash2, RotateCcw, ShieldHalf, Star, Sun, Moon } from "lucide-react";
 import { useBarcaStore } from "@/lib/store";
+import { useTheme } from "@/hooks/use-theme";
 import { COMPETITIONS, type CompetitionId, type Match, type Player, type Position } from "@/lib/barca-data";
 import { RatingBadge, ratingColor } from "@/components/RatingCell";
 import { cn } from "@/lib/utils";
@@ -73,6 +74,7 @@ function Home() {
 }
 
 function Header({ onReset }: { onReset: () => void }) {
+  const { theme, toggle } = useTheme();
   return (
     <header className="bg-gradient-hero text-primary-foreground shadow-card">
       <div className="container mx-auto max-w-7xl px-4 py-8 flex items-center justify-between gap-4">
@@ -87,24 +89,35 @@ function Header({ onReset }: { onReset: () => void }) {
             </p>
           </div>
         </div>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button variant="outline" size="sm" className="bg-white/10 border-white/30 text-white hover:bg-white/20">
-              <RotateCcw className="mr-2 h-4 w-4" /> Reset
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>¿Borrar todos los datos?</DialogTitle>
-            </DialogHeader>
-            <p className="text-sm text-muted-foreground">
-              Esto eliminará todas las notas, minutos, partidos personalizados y jugadores añadidos.
-            </p>
-            <DialogFooter>
-              <Button variant="destructive" onClick={onReset}>Sí, borrar todo</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={toggle}
+            className="bg-white/10 border-white/30 text-white hover:bg-white/20"
+            aria-label="Cambiar tema"
+          >
+            {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </Button>
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="outline" size="sm" className="bg-white/10 border-white/30 text-white hover:bg-white/20">
+                <RotateCcw className="mr-2 h-4 w-4" /> Reset
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>¿Borrar todos los datos?</DialogTitle>
+              </DialogHeader>
+              <p className="text-sm text-muted-foreground">
+                Esto eliminará todas las notas, minutos, partidos personalizados y jugadores añadidos.
+              </p>
+              <DialogFooter>
+                <Button variant="destructive" onClick={onReset}>Sí, borrar todo</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
     </header>
   );
@@ -334,22 +347,38 @@ function PositionRows({ pos, players, match, store }: { pos: Position; players: 
               />
             </td>
             <td className="px-2 py-2">
-              <Input
-                type="number"
-                min={0}
-                max={10}
-                step={0.1}
-                placeholder="—"
-                value={entry.rating ?? ""}
-                onChange={(e) => {
-                  const v = e.target.value === "" ? undefined : Number(e.target.value);
-                  store.setRating(match.id, p.id, { rating: v });
-                }}
-                className={cn(
-                  "h-9 w-20 mx-auto text-center tabular-nums font-display text-base",
-                  entry.rating !== undefined && ratingColor(entry.rating),
-                )}
-              />
+              <div className="flex items-center justify-center gap-1">
+                <Input
+                  type="number"
+                  min={0}
+                  max={10}
+                  step={0.1}
+                  placeholder="—"
+                  value={entry.rating ?? ""}
+                  onChange={(e) => {
+                    const v = e.target.value === "" ? undefined : Number(e.target.value);
+                    store.setRating(match.id, p.id, { rating: v });
+                  }}
+                  className={cn(
+                    "h-9 w-20 text-center tabular-nums font-display text-base",
+                    entry.rating !== undefined && ratingColor(entry.rating),
+                  )}
+                />
+                <button
+                  type="button"
+                  onClick={() => store.setRating(match.id, p.id, { starred: !entry.starred })}
+                  className={cn(
+                    "h-9 w-9 grid place-items-center rounded-md transition-colors",
+                    entry.starred
+                      ? "text-[color:var(--gold)]"
+                      : "text-muted-foreground hover:text-[color:var(--gold)]",
+                  )}
+                  aria-label={entry.starred ? "Quitar honores" : "Marcar con honores"}
+                  title={entry.starred ? "Quitar honores" : "Con honores (no afecta a la media)"}
+                >
+                  <Star className={cn("h-4 w-4", entry.starred && "fill-current")} />
+                </button>
+              </div>
             </td>
             <td className="px-4 py-2">
               <Input
@@ -375,7 +404,7 @@ function SeasonView({ store }: { store: ReturnType<typeof useBarcaStore> }) {
 
   const rows = useMemo(() => {
     return store.state.players.map((p) => {
-      let total = 0, count = 0, minutes = 0;
+      let total = 0, count = 0, minutes = 0, stars = 0;
       let best = -Infinity, worst = Infinity;
       const perComp: Record<CompetitionId, { sum: number; n: number }> = {
         laliga: { sum: 0, n: 0 }, copa: { sum: 0, n: 0 }, supercopa: { sum: 0, n: 0 }, champions: { sum: 0, n: 0 },
@@ -385,6 +414,7 @@ function SeasonView({ store }: { store: ReturnType<typeof useBarcaStore> }) {
         const e = store.state.ratings[`${m.id}::${p.id}`];
         if (!e) return;
         if (e.minutes) minutes += e.minutes;
+        if (e.starred) stars += 1;
         if (e.rating !== undefined && !Number.isNaN(e.rating)) {
           total += e.rating; count += 1;
           if (e.rating > best) best = e.rating;
@@ -398,6 +428,7 @@ function SeasonView({ store }: { store: ReturnType<typeof useBarcaStore> }) {
         avg: count ? total / count : null,
         matches: count,
         minutes,
+        stars,
         best: count ? best : null,
         worst: count ? worst : null,
         perComp,
@@ -480,6 +511,7 @@ function SeasonView({ store }: { store: ReturnType<typeof useBarcaStore> }) {
                   <th className="text-center px-3 py-3">Peor</th>
                   <th className="text-center px-3 py-3">Mejor</th>
                   <th className="text-center px-3 py-3">Media</th>
+                  <th className="text-center px-3 py-3" title="Partidos con honores">★</th>
                   <th className="text-center px-3 py-3"></th>
                 </tr>
               </thead>
@@ -504,6 +536,16 @@ function SeasonView({ store }: { store: ReturnType<typeof useBarcaStore> }) {
                     <td className="text-center px-3 py-2 tabular-nums text-muted-foreground">{r.worst !== null ? r.worst.toFixed(1) : "—"}</td>
                     <td className="text-center px-3 py-2 tabular-nums text-muted-foreground">{r.best !== null ? r.best.toFixed(1) : "—"}</td>
                     <td className="text-center px-3 py-2"><RatingBadge rating={r.avg ?? undefined} /></td>
+                    <td className="text-center px-3 py-2">
+                      {r.stars > 0 ? (
+                        <span className="inline-flex items-center gap-1 text-[color:var(--gold)] font-display">
+                          <Star className="h-3.5 w-3.5 fill-current" />
+                          {r.stars}
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </td>
                     <td className="text-center px-3 py-2">
                       <button
                         onClick={() => store.removePlayer(r.player.id)}
