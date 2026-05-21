@@ -347,22 +347,38 @@ function PositionRows({ pos, players, match, store }: { pos: Position; players: 
               />
             </td>
             <td className="px-2 py-2">
-              <Input
-                type="number"
-                min={0}
-                max={10}
-                step={0.1}
-                placeholder="—"
-                value={entry.rating ?? ""}
-                onChange={(e) => {
-                  const v = e.target.value === "" ? undefined : Number(e.target.value);
-                  store.setRating(match.id, p.id, { rating: v });
-                }}
-                className={cn(
-                  "h-9 w-20 mx-auto text-center tabular-nums font-display text-base",
-                  entry.rating !== undefined && ratingColor(entry.rating),
-                )}
-              />
+              <div className="flex items-center justify-center gap-1">
+                <Input
+                  type="number"
+                  min={0}
+                  max={10}
+                  step={0.1}
+                  placeholder="—"
+                  value={entry.rating ?? ""}
+                  onChange={(e) => {
+                    const v = e.target.value === "" ? undefined : Number(e.target.value);
+                    store.setRating(match.id, p.id, { rating: v });
+                  }}
+                  className={cn(
+                    "h-9 w-20 text-center tabular-nums font-display text-base",
+                    entry.rating !== undefined && ratingColor(entry.rating),
+                  )}
+                />
+                <button
+                  type="button"
+                  onClick={() => store.setRating(match.id, p.id, { starred: !entry.starred })}
+                  className={cn(
+                    "h-9 w-9 grid place-items-center rounded-md transition-colors",
+                    entry.starred
+                      ? "text-[color:var(--gold)]"
+                      : "text-muted-foreground hover:text-[color:var(--gold)]",
+                  )}
+                  aria-label={entry.starred ? "Quitar honores" : "Marcar con honores"}
+                  title={entry.starred ? "Quitar honores" : "Con honores (no afecta a la media)"}
+                >
+                  <Star className={cn("h-4 w-4", entry.starred && "fill-current")} />
+                </button>
+              </div>
             </td>
             <td className="px-4 py-2">
               <Input
