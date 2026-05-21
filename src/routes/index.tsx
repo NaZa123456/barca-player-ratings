@@ -537,6 +537,16 @@ function SeasonView({ store }: { store: ReturnType<typeof useBarcaStore> }) {
                     <td className="text-center px-3 py-2 tabular-nums text-muted-foreground">{r.best !== null ? r.best.toFixed(1) : "—"}</td>
                     <td className="text-center px-3 py-2"><RatingBadge rating={r.avg ?? undefined} /></td>
                     <td className="text-center px-3 py-2">
+                      {r.stars > 0 ? (
+                        <span className="inline-flex items-center gap-1 text-[color:var(--gold)] font-display">
+                          <Star className="h-3.5 w-3.5 fill-current" />
+                          {r.stars}
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                    </td>
+                    <td className="text-center px-3 py-2">
                       <button
                         onClick={() => store.removePlayer(r.player.id)}
                         className="text-muted-foreground hover:text-destructive transition-colors"
