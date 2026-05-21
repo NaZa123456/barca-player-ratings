@@ -9,8 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Trophy, Plus, Trash2, RotateCcw, ShieldHalf, Star } from "lucide-react";
+import { Trophy, Plus, Trash2, RotateCcw, ShieldHalf, Star, Sun, Moon } from "lucide-react";
 import { useBarcaStore } from "@/lib/store";
+import { useTheme } from "@/hooks/use-theme";
 import { COMPETITIONS, type CompetitionId, type Match, type Player, type Position } from "@/lib/barca-data";
 import { RatingBadge, ratingColor } from "@/components/RatingCell";
 import { cn } from "@/lib/utils";
