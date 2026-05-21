@@ -107,5 +107,6 @@ export interface RatingEntry {
   minutes?: number;
   rating?: number;
   note?: string;
+  starred?: boolean;
 }
 export type RatingsMap = Record<string, RatingEntry>;
